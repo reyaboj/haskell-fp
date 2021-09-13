@@ -6,15 +6,15 @@ The lambda calculus is composed of variables, abstractions, and applications.
 Examples:
 >  x
 > 
-> \xy.yx
+> λxy.yx
 > 
-> (\x.x) (\x.x)
+> (λx.x) (λx.x)
 
 Parameters (variables in the head) bind to arguments once the abstraction is applied, replacing all occurrences of the parameters with the bound arguments. Example:
 
-> (\x.x) y
+> (λx.x) y
 > 
-> (\\[x := y].x)
+> (λ[x := y].x)
 > 
 > y
 
@@ -22,7 +22,7 @@ Parameters (variables in the head) bind to arguments once the abstraction is app
 Two lambda expressions are alpha-equivalent iff. one can have its variables renamed so as to produce the same expression as the other.
 
 Example:
-> (\x.x) == (\y.y) since x can be renamed to y or vice-versa
+> (λx.x) == (λy.y) since x can be renamed to y or vice-versa
 
 ## Beta Equivalence
 The process of symbol shunting involved in application is called beta reduction. Example provided above. Applications are left associative and what that means is:
@@ -40,34 +40,34 @@ The process of symbol shunting involved in application is called beta reduction.
 ## Free variables
 Variables that are not bound by some abstraction are free. Example:
 
-> \x.xy
+> λx.xy
 > 
 > Here, y is a free variable and x is bound.
 
 Important to remember that alpha equivalence cannot exist for two terms with different free variables, but the same "form", such as:
 
-> \x.xy
+> λx.xy
 > 
-> \x.xz
+> λx.xz
 
 Even though the two terms above look similar, they are not alpha equivalent since *y* and *z* can refer to different things.
 
 ## Currying
 Functions with multiple arguments are essentially multiple nested abstractions like so:
-> \x.\y.yxz
+> λx.λy.yxz
 
 Worked example:
-> (\xy. xy) (\z.a) 1
+> (λxy. xy) (λz.a) 1
 > 
-> (\\[x:=(\z.a)].\y.xy) 1
+> (λ[x:=(λz.a)].λy.xy) 1
 > 
-> (\y. (\z.a) y) 1
+> (λy. (λz.a) y) 1
 > 
-> \\[y:=1]. (\z.a) y
+> λ[y:=1]. (λz.a) y
 > 
-> (\z.a) 1
+> (λz.a) 1
 > 
-> \\[z:=1].a
+> λ[z:=1].a
 > 
 > a
 
@@ -78,54 +78,54 @@ A quick way to see the final output for this particular example:
 4. therefore, our output is always *a*
 
 Another example:
-> (\xyz.xz(yz)) (\mn.m) (\p.p)
+> (λxyz.xz(yz)) (λmn.m) (λp.p)
 > 
-> (\\[x:=\mn.m]yz.xz(yz)) (\p.p)
+> (λ[x:=λmn.m]yz.xz(yz)) (λp.p)
 > 
-> (\yz.(\mn.m)z(yz)) (\p.p)
+> (λyz.(λmn.m)z(yz)) (λp.p)
 > 
-> \\[y:=(\p.p)]z.(\mn.m)z(yz)
+> λ[y:=(λp.p)]z.(λmn.m)z(yz)
 > 
-> \z.(\mn.m)z((\p.p)z)  <-- irreducible top abstraction so go inside
+> λz.(λmn.m)z((λp.p)z)  <-- irreducible top abstraction so go inside
 > 
-> \z.(\\[m:=z]n.m)((\p.p)z)
+> λz.(λ[m:=z]n.m)((λp.p)z)
 > 
-> \z.(\n.z)((\p.p)z)
+> λz.(λn.z)((λp.p)z)
 > 
-> \z.z
+> λz.z
 
-The final step is easy to see as the \mn.m abstraction ignores its second argument.
+The final step is easy to see as the λmn.m abstraction ignores its second argument.
 
 ## Exercise Intermission (pages 19-20)
-1. *\xy.xz* is alpha equivalent to *\mn. mz* (since *x* can be renamed to *m*)
-2. *\xy.xxy* is alpha equivalent to *\a(\b.aab)* since *a* can be renamed to *x* and *b* can be renamed to *y*
-3. *\xyz.zx* is alpha equivalent to *\tos.st* since *t* -> *x*, *o* -> *y*, *s* -> *z*
+1. *λxy.xz* is alpha equivalent to *λmn. mz* (since *x* can be renamed to *m*)
+2. *λxy.xxy* is alpha equivalent to *λa(λb.aab)* since *a* can be renamed to *x* and *b* can be renamed to *y*
+3. *λxyz.zx* is alpha equivalent to *λtos.st* since *t* -> *x*, *o* -> *y*, *s* -> *z*
 
 ## Evaluation and Normal Forms
 There are many normal forms, but we focus on beta normal form. This basically means an expression that cannot be beta-reduced anymore. This corresponds also to a fully executed program.
 
 Examples:
-> \x.x is in beta normal form
+> λx.x is in beta normal form
 > 
-> (\x.x)z is **NOT** in beta normal form as there is one step of beta reduction possible
+> (λx.x)z is **NOT** in beta normal form as there is one step of beta reduction possible
 
 ## Combinators
 A combinator is a lambda term with no free variables. They basically serve to *combine* their arguments; no more, no less.
 
 Example:
-> \xyz.z(yy)
+> λxyz.z(yy)
 
 Non-example:
-> \x.zx
+> λx.zx
 
 ## Divergence
 Some lambda terms, when beta reduced, never reach a normal form. They are said to *diverge*, as opposed to terms that do reduce, or *converge*, to a normal form.
 
 Example:
-> (\x.xx) (\x.xx)
+> (λx.xx) (λx.xx)
 > 
-> (\\[x:=\x.xx].xx)
+> (λ[x:=λx.xx].xx)
 > 
-> (\x.xx) (\x.xx)
+> (λx.xx) (λx.xx)
 
 The last step leaves us back where we started. This is a divergent, or non-terminating, computation.
