@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Chapter7
+      Chapter8
   other-modules:
       Paths_haskell_fp
   hs-source-dirs:
