@@ -27,6 +27,8 @@ library
   exposed-modules:
       Chapter7
       Chapter8
+      Chapter9
+      Cipher
   other-modules:
       Paths_haskell_fp
   hs-source-dirs:
