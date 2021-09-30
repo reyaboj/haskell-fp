@@ -1,3 +1,3 @@
-# Haskell from first principles
+# Learning functional programming in Haskell
 
-Exercises from Haskell from first principles book.
+Exercise solutions from the book: Haskell Programming from First Principles (Christoph Allen & Julie Moronuki).
