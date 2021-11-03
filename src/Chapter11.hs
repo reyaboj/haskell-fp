@@ -1,6 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving, FlexibleInstances #-}
 module Chapter11 where
 import qualified Data.Char as Char
+import qualified Data.List as List
 
 data Price = Price Integer
     deriving (Eq, Show)
@@ -15,7 +16,7 @@ data Airline = PapuAir
 
 type PlaneSize = Integer
 
-data Vehicle = Car Manufacturer Price 
+data Vehicle = Car Manufacturer Price
             |  Plane Airline PlaneSize
 
 myCar :: Vehicle
@@ -33,11 +34,11 @@ doge = Plane PapuAir
 {- Exercises 11.6 -}
 
 -- (2) Define the functions below.
-isCar :: Vehicle -> Bool 
+isCar :: Vehicle -> Bool
 isCar (Car _ _) = True
 isCar _ = False
 
-isPlane :: Vehicle -> Bool 
+isPlane :: Vehicle -> Bool
 isPlane (Plane _ _) = True
 isPlane _ = False
 
@@ -45,7 +46,7 @@ areCars :: [Vehicle] -> Bool
 areCars = all isCar
 
 -- (3) Write a function to get manufacturer from Vehicle.
-getManu :: Vehicle -> Manufacturer 
+getManu :: Vehicle -> Manufacturer
 getManu (Car m _) = m
 
 -- (4) What happens when you use getManu on plane data?
@@ -77,10 +78,10 @@ instance (Num a, TooMany a) => TooMany (a,a) where
     tooMany (x, y) = tooMany x && tooMany y
 
 
-type Name = String 
+type Name = String
 type Age = Integer
 data Person =
-    Person { name :: Name 
+    Person { name :: Name
             ,age  :: Age }
     deriving (Eq, Show)
 
@@ -95,7 +96,7 @@ data BookType = -- 1+1 = 2
     | NonfictionBook Nonfiction -- 1
     deriving (Show)
 
-type AuthorName = String 
+type AuthorName = String
 
 -- Just as in real numbers algebra: a*(b+c) = a*b + a*c
 -- We can analogously factor types in algebraic datatypes using sum of product
@@ -114,8 +115,8 @@ data Author2 =
 data FlowerType =
     Gardenia
     | Daisy
-    | Rose 
-    | Lilac 
+    | Rose
+    | Lilac
     deriving (Show)
 
 type Gardener = String
@@ -125,10 +126,10 @@ data Garden = Garden Gardener FlowerType
 
 -- (1) What is the sum-of-products form of Garden type?
 data Gardensop =
-    GardeniaGarden Gardener 
-    | DaisyGarden Gardener 
-    | RoseGarden Gardener 
-    | LilacGarden Gardener 
+    GardeniaGarden Gardener
+    | DaisyGarden Gardener
+    | RoseGarden Gardener
+    | LilacGarden Gardener
 
 
 data GuessWhat =
@@ -141,7 +142,7 @@ data Product a b =
     Product a b deriving (Eq, Show)
 
 data Sum a b =
-    First a 
+    First a
     | Second b deriving (Eq, Show)
 
 data RecordProduct a b =
@@ -156,7 +157,7 @@ newtype NumPig = NumPig Int deriving (Eq, Show)
 data Farmhouse = Farmhouse NumCow NumPig
     deriving (Eq, Show)
 
-type Farmhouse' = Product NumCow NumPig 
+type Farmhouse' = Product NumCow NumPig
 
 newtype NumSheep = NumSheep Int deriving (Eq, Show)
 
@@ -168,23 +169,23 @@ type BigFarmhouse' = Product NumCow (Product NumPig NumSheep)
 {- Exercises 11.13 -}
 -- Write a function that generates all inhabitants of Programmer
 
-data OperatingSystem = 
+data OperatingSystem =
     GnuPlusLinux
     | OpenBSDPlusNeverMindJustBSDStill
-    | Mac 
+    | Mac
     | Windows
     deriving (Eq, Show, Enum)
 
 data ProgLang =
     Haskell
-    | Agda 
-    | Idris 
+    | Agda
+    | Idris
     | PureScript
     deriving (Eq, Show, Enum)
 
 data Programmer =
     Programmer {
-        os :: OperatingSystem 
+        os :: OperatingSystem
     ,   lang :: ProgLang
     } deriving (Eq, Show)
 
@@ -192,7 +193,7 @@ allOperatingSystems :: [OperatingSystem]
 allOperatingSystems = enumFrom GnuPlusLinux
 
 allProgLangs :: [ProgLang]
-allProgLangs = enumFrom Haskell 
+allProgLangs = enumFrom Haskell
 
 allProgrammers :: [Programmer]
 allProgrammers =
@@ -252,7 +253,7 @@ postorder Leaf = []
 postorder (Node left x right) = postorder left ++ postorder right ++ [x]
 
 testTree' :: BinaryTree Integer
-testTree' = 
+testTree' =
     Node (Node Leaf 1 Leaf)
          2
          (Node Leaf 3 Leaf)
@@ -280,7 +281,7 @@ testTree3 :: BinaryTree Integer
 testTree3 =
     Node
         (Node
-            (Node Leaf 4 Leaf) 
+            (Node Leaf 4 Leaf)
             2
             (Node Leaf 6 Leaf))
         1
@@ -323,6 +324,7 @@ capitalizeWords xs = zip xs' (map wordUp xs')
         xs' = words xs
 
 -- Write a function that capitalizes a word
+-- Does not handle untrimmed strings; e.g., " foo"
 capitalizeWord :: String -> String
 capitalizeWord [] = []
 capitalizeWord xs'@(x:xs)
@@ -331,4 +333,171 @@ capitalizeWord xs'@(x:xs)
 
 -- Write a function that capitalizes the first word of each sentence in a string
 capitalizeParagraph :: String -> String
-capitalizeParagraph = undefined
+capitalizeParagraph = goCap True
+    where
+        -- recursive traversal
+        -- i swear this could be a fold of some kind but I can't see it right now...
+        goCap _ [] = []
+        goCap isSentenceHead xs'@(x:xs)
+            -- if the next word is the start of a sentence
+            | isSentenceHead && Char.isLower x = goCap False $ capitalizeWord xs'
+
+            -- if we see a punctuation mark
+            -- caveat: assumes semicolons, colons etc. are also sentence-delimiters, but too lazy to fix this ;)
+            | Char.isPunctuation x = x : goCap True xs
+
+            -- anything else just keep traversing
+            | otherwise = x : goCap isSentenceHead xs
+
+
+{-
+    Phone exercise
+
+---------------------------
+| 1      | 2 ABC | 3 DEF  |
+| 4 GHI  | 5 JKL | 6 MNO  |
+| 7 PQRS | 8 TUV | 9 WXYZ |
+| * ^    | 0 + _ | # . ,  |
+---------------------------
+
+Simulate the keypad for old-school phones.
+
+Each digit button, when pressed, cycles through the possibilities as follows.
+
+Keypress | Outcome
+------------------
+2        | A
+22       | B
+222      | C
+2222     | 2
+22222    | A
+...      | ...
+
+The key (*) capitalizes the letter that you type next.
+-}
+
+-- convert the conversation below to keypresses
+convo :: [String]
+convo = [
+    "Wanna play 20 questions",
+    "Ya",
+    "U 1st haha",
+    "Lol ok. Have u ever tasted alcohol",
+    "Lol ya",
+    "Wow ur cool haha. Ur turn",
+    "Ok. Do u think Im pretty Lol",
+    "Lol ya",
+    "Just making sure rofl ur turn"
+    ]
+
+-- DaPhone represents a keypad of digits with associated characters. There is
+-- a key that, when prefixed, produces the uppercase associated character.
+-- The structure is not ideal since you could instead associate a character with its
+-- corresponding key in a more efficient lookup structure than a list.
+data DaPhone =
+    DaPhone {
+        keypad :: [Key],
+        upcaseKey :: Digit
+    }
+
+-- A key represents a digit with its associated characters.
+-- For example, '6' might be associated with ['m', 'n', 'o'].
+type Key = (Digit, [Char])
+
+-- valid buttons: 1234567890*#
+type Digit = Char
+
+-- valid presses >= 1
+type Presses = Int
+
+-- A simple phone structure
+flipPhone :: DaPhone
+flipPhone =
+    DaPhone {
+        upcaseKey = '*',
+        keypad = [
+            ('1', [])
+            , ('2', ['a','b','c'])
+            , ('3', ['d','e','f'])
+            , ('4', ['g','h','i'])
+            , ('5', ['j','k','l'])
+            , ('6', ['m','n','o'])
+            , ('7', ['p','q','r','s'])
+            , ('8', ['t','u','v'])
+            , ('9', ['w','x','y','z'])
+            , ('*', ['^'])
+            , ('0', [' ', '+', '_'])
+            , ('#', ['.', ','])
+        ]
+    }
+
+-- Given a phone and a character to type, produces the key that must be pressed.
+-- TODO:  refactor the code by collapsing both branches to a single branch since
+--   both branches differ only in their filter predicate
+findKey :: DaPhone -> Char -> Key
+findKey phone c
+    | Char.isNumber c =
+        -- search the keys for matching digit and return first match
+        case filter ((c==) . fst) $ keypad phone of
+            [] -> error $ "findKey: failed to find key for <" ++ [c] ++ ">"
+            k:_ -> k
+
+    | otherwise =
+        -- search the keys for matching character and return first match
+        case filter ((c `elem`) . snd) $ keypad phone of
+            [] -> error $ "findKey: failed to find key for <" ++ [c] ++ ">"
+            k:_ -> k
+
+-- Example:
+--   'a' -> [('2', 1)]
+--   'A' -> [('*', 1), ('2', 1)]
+reverseTaps :: DaPhone -> Char -> [(Digit, Presses)]
+reverseTaps phone c = presses
+    where
+        c' = Char.toLower c
+
+        key@(d, cs) = findKey phone c'
+
+        pos = case List.elemIndex c' cs of
+            Nothing -> error $ "reverseTaps: findKey found wrong key " ++ show key
+            Just i -> i
+
+        upcasePrefix = (upcaseKey phone, 1)
+        charTaps = (d, pos+1)
+
+        presses
+            | Char.isNumber c = [(c, length cs + 1)]
+            | Char.isUpper c = [upcasePrefix, charTaps]
+            | otherwise = [charTaps]
+
+cellPhonesDead :: DaPhone -> String -> [(Digit, Presses)]
+cellPhonesDead phone = concatMap (reverseTaps phone)
+
+-- how many times do digits have to be pressed for each message?
+fingerTaps :: [(Digit, Presses)] -> Presses
+fingerTaps = sum . map snd
+
+-- what was the most popular letter for each message? what was its cost?
+mostPopularLetter :: DaPhone -> String -> (Char, Presses)
+mostPopularLetter phone message = tapStats
+    where
+        messageSorted = List.sort message
+        messageGrouped =
+            List.groupBy (\c1 c2 -> Char.toLower c1 == Char.toLower c2)
+                            messageSorted
+        messageCounted = map (\cs -> (cs, length cs)) messageGrouped
+        tapStats =
+            case List.sortBy
+                    (\(_, n1) (_, n2) -> n2 `compare` n1)
+                    messageCounted of
+                        [] -> error "mostPopularLetter: empty list of letter counts"
+                        (cs,_):_ -> (Char.toLower . head $ cs,
+                                            fingerTaps . cellPhonesDead phone $ cs)
+
+-- what was the most popular letter overall?
+coolestLtr :: [String] -> Char
+coolestLtr phone = undefined -- meh boring
+
+-- what was the most popular word?
+coolestWord :: [String] -> String
+coolestWord = undefined      -- meh boring
