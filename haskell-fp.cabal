@@ -27,6 +27,7 @@ library
   exposed-modules:
       Chapter10
       Chapter11
+      Chapter12
       Chapter7
       Chapter8
       Chapter9
