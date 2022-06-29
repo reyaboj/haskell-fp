@@ -1,6 +1,6 @@
 module Chapter15 where
-import Data.Semigroup
-import Data.Monoid
+import Data.Semigroup ( Sum )
+import Data.Monoid ( Sum )
 import Test.QuickCheck ( Gen, Function(..), CoArbitrary, Arbitrary(..), quickCheck, frequency )
 
 {-
@@ -235,18 +235,44 @@ instance (Show a, Show b, Function a) => Show (Combine a b) where
 
 type CombineInt2Int = Combine Int (Sum Int)
 checkCombine :: IO ()
-checkCombine = do
-    quickCheck (isSemigroup :: CombineInt2Int -> CombineInt2Int -> CombineInt2Int -> Bool)
+checkCombine = undefined
 
 -- 10: Comp
-newtype Comp a = Com { unComp :: a -> a }
+newtype Comp a = Comp { unComp :: a -> a }
+
+instance Semigroup (Comp a) where
+    (Comp f) <> (Comp g) = Comp $ f . g
+
+instance Monoid (Comp a) where
+    mempty = Comp id
 
 -- 11: Validation
 data Validation a b = Failure a | Success b
     deriving (Eq, Show)
 
+instance Semigroup a => Semigroup (Validation a b) where
+    (Success x) <> _ = Success x
+    _ <> (Success y) = Success y
+    (Failure x) <> (Failure y) = Failure $ x <> y
+
+instance Monoid a => Monoid (Validation a b) where
+    mempty = Failure mempty
+
 {- Monoid exercises -}
 -- Implement monoids for each type above that has a semigroup
+
+newtype Mem s a = Mem { runMem :: s -> (a, s) }
+
+instance Semigroup a => Semigroup (Mem s a) where
+    m1 <> m2 = Mem {
+        runMem = \s0 ->
+            let (a1, s1) = runMem m1 s0
+                (a2, s2) = runMem m2 s1
+            in (a1 <> a2, s2)
+    }
+
+instance Monoid a => Monoid (Mem s a) where
+    mempty = Mem $ (,) mempty
 
 {-
     Tests for Chapter 15
@@ -265,3 +291,7 @@ hasLeftIdentity m = mempty <> m == m
 
 hasRightIdentity :: (Eq a, Monoid a) => a -> Bool
 hasRightIdentity m = m <> mempty == m
+
+isCommutative :: Eq a => (a -> a -> a) -> a -> a -> Bool
+isCommutative (<>) x y =
+    x <> y == y <> x
