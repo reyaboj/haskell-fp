@@ -25,11 +25,13 @@ source-repository head
 
 library
   exposed-modules:
+      BadMonoid
       Chapter10
       Chapter11
       Chapter12
       Chapter15
       Chapter16
+      Chapter17
       Chapter7
       Chapter8
       Chapter9
@@ -41,6 +43,7 @@ library
   build-depends:
       QuickCheck
     , base >=4.7 && <5
+    , checkers
     , time >1.9 && <=1.12
   default-language: Haskell2010
 
@@ -54,6 +57,7 @@ executable haskell-fp-exe
   build-depends:
       QuickCheck
     , base >=4.7 && <5
+    , checkers
     , haskell-fp
     , time >1.9 && <=1.12
   default-language: Haskell2010
@@ -69,6 +73,7 @@ test-suite haskell-fp-test
   build-depends:
       QuickCheck
     , base >=4.7 && <5
+    , checkers
     , haskell-fp
     , time >1.9 && <=1.12
   default-language: Haskell2010
