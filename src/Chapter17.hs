@@ -275,7 +275,7 @@ instance Functor (Validation e) where
     fmap f (Succeeded x) = Succeeded (f x)
 
 instance Monoid e => Applicative (Validation e) where
-    pure = undefined
+    pure = Succeeded
 
     (Failed e1) <*> (Failed e2) = Failed $ e1 <> e2
     (Failed e1) <*> _ = Failed e1
